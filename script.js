@@ -2,19 +2,18 @@
 const API_URL = 'http://localhost:3000/api';
 
 /* ==========================================================================
-   1. TRAVA DE SEGURANÇA (Verifica permissão antes de carregar a interface)
+   1. TRAVA DE SEGURANÇA UNIVERSAL (Executada imediatamente)
    ========================================================================== */
 (function verificarAutenticacao() {
-  const paginaAtual = window.location.pathname;
+  const path = window.location.pathname.toLowerCase();
   const token = localStorage.getItem('token');
 
-  // Páginas restritas que exigem login obrigatoriamente
-  const paginasProtegidas = ['home.html', 'enfcare-hub.html', 'projetos.html', 'quiz.html', 'contato.html'];
-  const ePaginaProtegida = paginasProtegidas.some(pag => paginaAtual.includes(pag));
+  // Identifica se o usuário está na página inicial/login
+  const ePaginaLogin = path === '/' || path.endsWith('/index.html') || path.endsWith('/index');
 
-  if (ePaginaProtegida && !token) {
-    // Redireciona para o login caso tente pular a tela de entrada
-    window.location.href = 'index.html';
+  // Se NÃO estiver na tela de login e NÃO tiver token, expulsa para o login
+  if (!ePaginaLogin && !token) {
+    window.location.replace('index.html');
   }
 })();
 
@@ -286,6 +285,4 @@ function gerarRelatorioPDF() {
   };
 
   html2pdf().set(opt).from(element).save();
-}git add script.js
-git commit -m "feat: trava de seguranca e scripts do painel integrados"
-git push origin main
+}
