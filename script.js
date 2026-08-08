@@ -1,5 +1,8 @@
-// Configuração da URL da API
-const API_URL = 'http://localhost:3000/api';
+// Configuração Dinâmica da URL da API
+const isProduction = window.location.hostname.includes('vercel.app');
+const API_URL = isProduction 
+  ? 'https://enftech-api.onrender.com/api' // Altere para a URL real do seu back-end em produção quando subir
+  : 'http://localhost:3000/api';
 
 /* ==========================================================================
    1. TRAVA DE SEGURANÇA UNIVERSAL (Executada imediatamente)
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
       localStorage.removeItem('token');
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
     });
   }
 
@@ -106,7 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================================== */
 async function carregarPerfil() {
   const token = localStorage.getItem('token');
-  if (!token) return;
+  
+  if (!token) {
+    window.location.replace('index.html');
+    return;
+  }
 
   try {
     const resposta = await fetch(`${API_URL}/usuario/meu-perfil`, {
@@ -129,12 +136,15 @@ async function carregarPerfil() {
         elementoNomePdf.innerText = dados.usuario.nome;
       }
     } else {
-      // Se o token for inválido/expirado, desloga o usuário
+      // Se o token for inválido ou expirado, limpa e redireciona
       localStorage.removeItem('token');
-      window.location.href = 'index.html';
+      window.location.replace('index.html');
     }
   } catch (error) {
     console.error('Erro ao carregar dados do perfil:', error);
+    // Se a conexão falhar (ex: tentativa de acesso ao localhost em dispositivo externo), bloqueia e redireciona
+    localStorage.removeItem('token');
+    window.location.replace('index.html');
   }
 }
 
