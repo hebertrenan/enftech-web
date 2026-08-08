@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enftech | Painel do Profissional</title>
+    
+    <!-- Font Awesome & HTML2PDF -->
+    <link rel="stylesheet" href="style-enftech.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="style-enftech.css">
+</head>
+<body>
+
+    <header>
+        <div class="container header-flex">
+            <div class="logo-container">
+                <a href="#" class="logo-enftech">
+                    <div class="logo-icon">✚</div>
+                    <div class="logo-text">Enf<span>tech</span></div>
+                </a>
+                <p class="tagline">Tecnologia no Cuidado Clínico</p>
+            </div>
+
+            <!-- Identificação do Usuário Logado e Ações -->
+            <div class="user-badge" id="user-badge-container">
+                <i class="fas fa-user-circle"></i>
+                <span id="user-name-display">Carregando perfil...</span>
+                <button id="btn-logout" class="btn-logout" title="Sair do Sistema">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+
+            <nav>
+                <ul class="nav-list">
+                    <li><button class="nav-link active" data-target="home">Home</button></li>
+                    <li><button class="nav-link" data-target="enfcare">EnfCare Hub</button></li>
+                    <li><button class="nav-link" data-target="projetos">Projetos</button></li>
+                    <li><button class="nav-link" data-target="quiz">Quiz</button></li>
+                    <li><button class="nav-link" data-target="contato">Contato</button></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- SEÇÃO: HOME -->
+        <section id="home" class="tab-section active">
+            <div class="card">
+                <h2 class="section-title">Bem-vindo ao Futuro do Cuidado</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    A <strong>Enftech</strong> conecta o conhecimento técnico da enfermagem com a precisão de algoritmos inteligentes para uma assistência mais segura e eficiente.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px;">
+                    <div style="background: #f8fafc; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #e2e8f0;">
+                        <span style="font-size: 2.5rem;">🩺</span>
+                        <h4 style="margin-top: 15px; color: var(--primary);">Clínica Digital</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Escalas validadas e protocolos beira-leito.</p>
+                    </div>
+                    <div style="background: #f8fafc; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #e2e8f0;">
+                        <span style="font-size: 2.5rem;">💻</span>
+                        <h4 style="margin-top: 15px; color: var(--secondary);">Engenharia Ágil</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Sistemas leves e 100% responsivos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: ENFCARE HUB -->
+        <section id="enfcare" class="tab-section">
+            <div class="card">
+                <div class="enfcare-header">
+                    <h2 class="section-title" style="margin-bottom: 0;">EnfCare Hub</h2>
+                    <button class="btn-pdf" onclick="gerarRelatorioPDF()">
+                        <i class="fas fa-file-pdf"></i> PDF de Triagem
+                    </button>
+                </div>
+                
+                <div class="form-row">
+                    <label>Identificação do Paciente</label>
+                    <input type="text" id="paciente-nome" class="enf-input" placeholder="Nome completo ou prontuário">
+                </div>
+
+                <div class="enfcare-grid">
+                    <aside class="scales-nav">
+                        <button class="scale-link active" data-view="v-pa"><i class="fas fa-heartbeat"></i> PA</button>
+                        <button class="scale-link" data-view="v-glasgow"><i class="fas fa-brain"></i> Glasgow-P</button>
+                        <button class="scale-link" data-view="v-braden"><i class="fas fa-bed"></i> Braden (Pele)</button>
+                        <button class="scale-link" data-view="v-imc"><i class="fas fa-weight"></i> IMC</button>
+                        <button class="scale-link" data-view="v-gotas"><i class="fas fa-tint"></i> Gotas</button>
+                    </aside>
+
+                    <div class="scale-content">
+                        
+                        <!-- PA -->
+                        <div id="v-pa" class="scale-view active">
+                            <h4 class="scale-subtitle">Monitorização de Pressão Arterial</h4>
+                            <div class="form-row">
+                                <label>Entrada Inteligente</label>
+                                <input type="text" id="pa-input" class="enf-input" style="text-align: center; font-size: 1.5rem;" placeholder="Ex: 12/8 ou 12080">
+                            </div>
+                            <div id="pa-area-view" style="display: none;">
+                                <div class="pa-display">
+                                    <div class="pa-box"><span class="lab">Sistólica</span><span id="pa-sis-val" class="num">--</span></div>
+                                    <div class="pa-divider"></div>
+                                    <div class="pa-box"><span class="lab">Diastólica</span><span id="pa-dias-val" class="num">--</span></div>
+                                </div>
+                                <div id="pa-status-box" class="result-box">
+                                    <strong id="pa-diag-title"></strong>
+                                    <p id="pa-diag-msg" style="font-size: 0.85rem; margin-top: 5px;"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GLASGOW-P -->
+                        <div id="v-glasgow" class="scale-view">
+                            <h4 class="scale-subtitle">Glasgow com Reação Pupilar</h4>
+                            <div class="form-row"><label>Ocular</label><select id="g-o" class="enf-input"><option value="0">Selecionar...</option><option value="4">4 - Espontânea</option><option value="3">3 - À voz</option><option value="2">2 - À pressão</option><option value="1">1 - Ausente</option></select></div>
+                            <div class="form-row"><label>Verbal</label><select id="g-v" class="enf-input"><option value="0">Selecionar...</option><option value="5">5 - Orientada</option><option value="4">4 - Confusa</option><option value="3">3 - Palavras inapropriadas</option><option value="2">2 - Sons incompreensíveis</option><option value="1">1 - Ausente</option></select></div>
+                            <div class="form-row"><label>Motor</label><select id="g-m" class="enf-input"><option value="0">Selecionar...</option><option value="6">6 - Obedece comandos</option><option value="5">5 - Localiza dor</option><option value="4">4 - Flexão normal</option><option value="3">3 - Flexão anormal</option><option value="2">2 - Extensão</option><option value="1">1 - Ausente</option></select></div>
+                            <div class="form-row"><label>Reação Pupilar</label><select id="g-p" class="enf-input"><option value="0">0 - Ambas as pupilas reagem</option><option value="1">-1 - Apenas uma pupila reage</option><option value="2">-2 - Nenhuma pupila reage</option></select></div>
+                            <button class="btn-action" onclick="calcGlasgow()">Calcular Score Final</button>
+                            <div id="res-glasgow" class="result-box" style="display: none; text-align: center;">
+                                <h3 id="g-out-total" style="font-size: 2rem;"></h3>
+                                <p id="g-out-cat" style="font-weight: 800; text-transform: uppercase;"></p>
+                            </div>
+                        </div>
+
+                        <!-- BRADEN -->
+                        <div id="v-braden" class="scale-view">
+                            <h4 class="scale-subtitle">Risco de Lesão (Braden)</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div class="form-row"><label>Percepção Sensorial</label><select id="b1" class="enf-input"><option value="4">4 - Sem limitações</option><option value="3">3 - Ligeiramente limitada</option><option value="2">2 - Muito limitada</option><option value="1">1 - Totalmente limitada</option></select></div>
+                                <div class="form-row"><label>Umidade</label><select id="b2" class="enf-input"><option value="4">4 - Raramente úmida</option><option value="3">3 - Ocasionalmente úmida</option><option value="2">2 - Muito úmida</option><option value="1">1 - Constantemente úmida</option></select></div>
+                                <div class="form-row"><label>Atividade</label><select id="b3" class="enf-input"><option value="4">4 - Deambula frequente</option><option value="3">3 - Deambula ocasional</option><option value="2">2 - Cadeira de rodas</option><option value="1">1 - Acamado</option></select></div>
+                                <div class="form-row"><label>Mobilidade</label><select id="b4" class="enf-input"><option value="4">4 - Sem limitações</option><option value="3">3 - Ligeiramente limitada</option><option value="2">2 - Muito limitada</option><option value="1">1 - Totalmente imóvel</option></select></div>
+                                <div class="form-row"><label>Nutrição</label><select id="b5" class="enf-input"><option value="4">4 - Excelente</option><option value="3">3 - Adequada</option><option value="2">2 - Provavelmente inadequada</option><option value="1">1 - Muito pobre</option></select></div>
+                                <div class="form-row"><label>Fricção e Cisalhamento</label><select id="b6" class="enf-input"><option value="3">3 - Sem problema aparente</option><option value="2">2 - Problema potencial</option><option value="1">1 - Problema existente</option></select></div>
+                            </div>
+                            <button class="btn-action" onclick="calcBraden()">Avaliar Risco de Pele</button>
+                            <div id="res-braden" class="result-box" style="display: none; text-align: center;">
+                                <h3 id="b-out-total"></h3>
+                                <p id="b-out-cat" style="font-weight: 800; text-transform: uppercase;"></p>
+                            </div>
+                        </div>
+
+                        <!-- IMC -->
+                        <div id="v-imc" class="scale-view">
+                            <h4 class="scale-subtitle">Estado Nutricional (IMC)</h4>
+                            <div class="form-row"><label>Peso (kg)</label><input type="number" id="imc-p" class="enf-input" placeholder="Ex: 70"></div>
+                            <div class="form-row"><label>Altura (m)</label><input type="number" id="imc-a" class="enf-input" placeholder="Ex: 1.75"></div>
+                            <button class="btn-action" onclick="calcIMC()">Calcular IMC</button>
+                            <div id="res-imc" class="result-box" style="display: none; text-align: center;"></div>
+                        </div>
+
+                        <!-- GOTAS -->
+                        <div id="v-gotas" class="scale-view">
+                            <h4 class="scale-subtitle">Infusão e Gotejamento</h4>
+                            <div class="form-row"><label>Volume Total (ml)</label><input type="number" id="got-v" class="enf-input" placeholder="Ex: 500"></div>
+                            <div class="form-row"><label>Tempo (horas)</label><input type="number" id="got-t" class="enf-input" placeholder="Ex: 8"></div>
+                            <button class="btn-action" onclick="calcGotas()">Calcular Taxa</button>
+                            <div id="res-gotas" class="result-box" style="display: none; text-align: center;"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÕES EXTRAS -->
+        <section id="projetos" class="tab-section">
+            <div class="card">
+                <h2 class="section-title">Nossos Projetos</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <h4 style="color: var(--primary);">LabLink</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Monitoramento de exames críticos em tempo real.</p>
+                    </div>
+                    <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <h4 style="color: var(--secondary);">EnfCloud</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Prontuário focado em sistematização da enfermagem.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz" class="tab-section">
+            <div class="card" style="text-align: center; padding: 50px;">
+                <h2 class="section-title">Enftech Challenge</h2>
+                <p style="margin-bottom: 20px;">Prove seus conhecimentos clínicos e tecnológicos.</p>
+                <button class="btn-action" style="max-width: 250px; margin: 0 auto;">Iniciar Quiz</button>
+            </div>
+        </section>
+
+        <section id="contato" class="tab-section">
+            <div class="card">
+                <h2 class="section-title">Contato</h2>
+                <p>Mande um email ou fale conosco no Instagram:</p>
+                <div class="result-box" style="border-left-color: var(--primary);">
+                    <p><strong>Email:</strong> contato@enftech.com.br</p>
+                    <p><strong>Instagram:</strong> @enftech_oficial</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TEMPLATE PDF (OFFSCREEN) -->
+    <div id="pdf-template" class="pdf-offscreen">
+        <h1 style="color: #2563eb; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px;">EnfCare Hub - Relatório de Triagem</h1>
+        <div style="margin: 20px 0; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <p><strong>Profissional Responsável:</strong> <span id="pdf-prof-nome">--</span></p>
+            <p><strong>Paciente:</strong> <span id="pdf-p-nome">--</span></p>
+            <p><strong>Data/Hora:</strong> <span id="pdf-p-data">--</span></p>
+        </div>
+        <div id="pdf-results-list"></div>
+        <footer style="margin-top: 50px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+            Documento gerado por Enftech Engine v5.2. Protocolos validados beira-leito.
+        </footer>
+    </div>
+
+    <footer>
+        <p><strong>Enftech</strong> — Tecnologia aplicada ao cuidado.</p>
+        <p class="footer-copy">&copy; 2026. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

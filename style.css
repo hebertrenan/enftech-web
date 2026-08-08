@@ -1,0 +1,112 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  background: #1e293b;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Esconde os radio buttons reais */
+input[type="radio"] {
+  display: none;
+}
+
+/* Abas */
+.abas {
+  display: flex;
+  border-bottom: 2px solid #334155;
+  margin-bottom: 1.5rem;
+}
+
+.aba {
+  flex: 1;
+  text-align: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  color: #94a3b8;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* Alternância de Abas sem JS via seletor :checked */
+#tab-login:checked ~ .abas label[for="tab-login"],
+#tab-cadastro:checked ~ .abas label[for="tab-cadastro"] {
+  color: #38bdf8;
+  border-bottom: 2px solid #38bdf8;
+}
+
+/* Exibição dos Formulários */
+.card-form {
+  display: none;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+#tab-login:checked ~ .conteudo #form-login,
+#tab-cadastro:checked ~ .conteudo #form-cadastro {
+  display: flex;
+}
+
+/* Campos e Inputs */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+label {
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+input {
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  background-color: #0f172a;
+  color: #f8fafc;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: #38bdf8;
+}
+
+/* Validação Nativas do CSS */
+input:invalid:not(:placeholder-shown) {
+  border-color: #f87171;
+}
+
+.btn {
+  background-color: #0284c7;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.btn:hover {
+  background-color: #0369a1;
+}
