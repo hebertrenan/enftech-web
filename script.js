@@ -1,7 +1,10 @@
-// Configuração Dinâmica da URL da API
+// ==========================================================================
+// CONFIGURAÇÃO DINÂMICA DA URL DA API
+// ==========================================================================
 const isProduction = window.location.hostname.includes('vercel.app');
+
 const API_URL = isProduction 
-  ? 'https://enftech-api.onrender.com/api' // Altere para a URL real do seu back-end em produção quando subir
+  ? 'https://enftech-api.onrender.com/api'
   : 'http://localhost:3000/api';
 
 /* ==========================================================================
@@ -12,9 +15,9 @@ const API_URL = isProduction
   const token = localStorage.getItem('token');
 
   // Identifica se o usuário está na página inicial/login
-  const ePaginaLogin = path === '/' || path.endsWith('/index.html') || path.endsWith('/index');
+  const ePaginaLogin = path === '/' || path.endsWith('/index.html') || path.endsWith('/index') || path === '';
 
-  // Se NÃO estiver na tela de login e NÃO tiver token, expulsa para o login
+  // Se NÃO estiver na tela de login e NÃO tiver token, redireciona para o login
   if (!ePaginaLogin && !token) {
     window.location.replace('index.html');
   }
@@ -52,9 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
           const tabLogin = document.getElementById('tab-login');
           if (tabLogin) tabLogin.checked = true;
         } else {
-          alert(`❌ Erro no cadastro: ${dados.erro || dados.mensagem}`);
+          alert(`❌ Erro no cadastro: ${dados.erro || dados.mensagem || 'Verifique os dados informados.'}`);
         }
       } catch (error) {
+        console.error('Erro de conexão no cadastro:', error);
         alert('⚠️ Não foi possível conectar ao servidor. Verifique se a API está rodando.');
       }
     });
@@ -81,15 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('token', dados.token);
           window.location.href = 'home.html';
         } else {
-          alert(`❌ Erro no login: ${dados.erro || dados.mensagem}`);
+          alert(`❌ Erro no login: ${dados.erro || dados.mensagem || 'Credenciais inválidas.'}`);
         }
       } catch (error) {
+        console.error('Erro de conexão no login:', error);
         alert('⚠️ Não foi possível conectar ao servidor.');
       }
     });
   }
 
-  // --- EVENTO DE LOGOUT (BOTAO SAIR) ---
+  // --- EVENTO DE LOGOUT (BOTÃO SAIR) ---
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
       localStorage.removeItem('token');
@@ -119,13 +124,14 @@ async function carregarPerfil() {
     const resposta = await fetch(`${API_URL}/usuario/meu-perfil`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
 
     const dados = await resposta.json();
 
-    if (resposta.ok) {
+    if (resposta.ok && dados.usuario) {
       const elementoNomeHeader = document.getElementById('user-name-display');
       const elementoNomePdf = document.getElementById('pdf-prof-nome');
 
@@ -136,13 +142,11 @@ async function carregarPerfil() {
         elementoNomePdf.innerText = dados.usuario.nome;
       }
     } else {
-      // Se o token for inválido ou expirado, limpa e redireciona
       localStorage.removeItem('token');
       window.location.replace('index.html');
     }
   } catch (error) {
     console.error('Erro ao carregar dados do perfil:', error);
-    // Se a conexão falhar (ex: tentativa de acesso ao localhost em dispositivo externo), bloqueia e redireciona
     localStorage.removeItem('token');
     window.location.replace('index.html');
   }
@@ -152,7 +156,6 @@ async function carregarPerfil() {
    4. SISTEMA DE NAVEGAÇÃO DAS ABAS NA HOME
    ========================================================================== */
 function inicializarNavegacaoAbas() {
-  // Troca de Seções Principais (Home, EnfCare Hub, Projetos, etc)
   const navLinks = document.querySelectorAll('.nav-link');
   const tabSections = document.querySelectorAll('.tab-section');
 
@@ -169,7 +172,6 @@ function inicializarNavegacaoAbas() {
     });
   });
 
-  // Troca de Escalas no EnfCare Hub (PA, Glasgow, Braden, etc)
   const scaleLinks = document.querySelectorAll('.scale-link');
   const scaleViews = document.querySelectorAll('.scale-view');
 
@@ -193,10 +195,10 @@ function inicializarNavegacaoAbas() {
 
 // --- CÁLCULO GLASGOW-P ---
 function calcGlasgow() {
-  const o = parseInt(document.getElementById('g-o').value) || 0;
-  const v = parseInt(document.getElementById('g-v').value) || 0;
-  const m = parseInt(document.getElementById('g-m').value) || 0;
-  const p = parseInt(document.getElementById('g-p').value) || 0;
+  const o = parseInt(document.getElementById('g-o')?.value) || 0;
+  const v = parseInt(document.getElementById('g-v')?.value) || 0;
+  const m = parseInt(document.getElementById('g-m')?.value) || 0;
+  const p = parseInt(document.getElementById('g-p')?.value) || 0;
 
   const total = o + v + m + p;
   const resBox = document.getElementById('res-glasgow');
@@ -208,19 +210,19 @@ function calcGlasgow() {
   else if (total <= 12) classificacao = "Trauma Cranioencefálico Moderado (TCE Moderado)";
   else classificacao = "Trauma Cranioencefálico Leve (TCE Leve)";
 
-  outTotal.innerText = `Pontuação Final: ${total}`;
-  outCat.innerText = classificacao;
-  resBox.style.display = 'block';
+  if (outTotal) outTotal.innerText = `Pontuação Final: ${total}`;
+  if (outCat) outCat.innerText = classificacao;
+  if (resBox) resBox.style.display = 'block';
 }
 
 // --- CÁLCULO BRADEN ---
 function calcBraden() {
-  const b1 = parseInt(document.getElementById('b1').value);
-  const b2 = parseInt(document.getElementById('b2').value);
-  const b3 = parseInt(document.getElementById('b3').value);
-  const b4 = parseInt(document.getElementById('b4').value);
-  const b5 = parseInt(document.getElementById('b5').value);
-  const b6 = parseInt(document.getElementById('b6').value);
+  const b1 = parseInt(document.getElementById('b1')?.value) || 0;
+  const b2 = parseInt(document.getElementById('b2')?.value) || 0;
+  const b3 = parseInt(document.getElementById('b3')?.value) || 0;
+  const b4 = parseInt(document.getElementById('b4')?.value) || 0;
+  const b5 = parseInt(document.getElementById('b5')?.value) || 0;
+  const b6 = parseInt(document.getElementById('b6')?.value) || 0;
 
   const total = b1 + b2 + b3 + b4 + b5 + b6;
   const resBox = document.getElementById('res-braden');
@@ -233,15 +235,15 @@ function calcBraden() {
   else if (total <= 14) risco = "Risco Moderado";
   else risco = "Baixo Risco / Sem Risco";
 
-  outTotal.innerText = `Score Braden: ${total}`;
-  outCat.innerText = risco;
-  resBox.style.display = 'block';
+  if (outTotal) outTotal.innerText = `Score Braden: ${total}`;
+  if (outCat) outCat.innerText = risco;
+  if (resBox) resBox.style.display = 'block';
 }
 
 // --- CÁLCULO IMC ---
 function calcIMC() {
-  const peso = parseFloat(document.getElementById('imc-p').value);
-  const altura = parseFloat(document.getElementById('imc-a').value);
+  const peso = parseFloat(document.getElementById('imc-p')?.value);
+  const altura = parseFloat(document.getElementById('imc-a')?.value);
   const resBox = document.getElementById('res-imc');
 
   if (!peso || !altura) {
@@ -257,14 +259,16 @@ function calcIMC() {
   else if (imc < 29.9) status = "Sobrepeso";
   else status = "Obesidade";
 
-  resBox.innerHTML = `<h3>IMC: ${imc}</h3><p><strong>Classificação:</strong> ${status}</p>`;
-  resBox.style.display = 'block';
+  if (resBox) {
+    resBox.innerHTML = `<h3>IMC: ${imc}</h3><p><strong>Classificação:</strong> ${status}</p>`;
+    resBox.style.display = 'block';
+  }
 }
 
 // --- CÁLCULO GOTAS ---
 function calcGotas() {
-  const vol = parseFloat(document.getElementById('got-v').value);
-  const tempo = parseFloat(document.getElementById('got-t').value);
+  const vol = parseFloat(document.getElementById('got-v')?.value);
+  const tempo = parseFloat(document.getElementById('got-t')?.value);
   const resBox = document.getElementById('res-gotas');
 
   if (!vol || !tempo) {
@@ -275,23 +279,36 @@ function calcGotas() {
   const gotasMin = Math.round(vol / (tempo * 3));
   const microgotasMin = Math.round(vol / tempo);
 
-  resBox.innerHTML = `<h3>Gotas: ${gotasMin} gtt/min</h3><p><strong>Microgotas:</strong> ${microgotasMin} mcgtt/min</p>`;
-  resBox.style.display = 'block';
+  if (resBox) {
+    resBox.innerHTML = `<h3>Gotas: ${gotasMin} gtt/min</h3><p><strong>Microgotas:</strong> ${microgotasMin} mcgtt/min</p>`;
+    resBox.style.display = 'block';
+  }
 }
 
 // --- GERAÇÃO DE RELATÓRIO PDF ---
 function gerarRelatorioPDF() {
-  const nomePaciente = document.getElementById('paciente-nome').value || "Não identificado";
-  document.getElementById('pdf-p-nome').innerText = nomePaciente;
-  document.getElementById('pdf-p-data').innerText = new Date().toLocaleString('pt-BR');
+  const elementoPaciente = document.getElementById('paciente-nome');
+  const nomePaciente = elementoPaciente && elementoPaciente.value ? elementoPaciente.value : "Não identificado";
+  
+  const pdfNome = document.getElementById('pdf-p-nome');
+  const pdfData = document.getElementById('pdf-p-data');
+
+  if (pdfNome) pdfNome.innerText = nomePaciente;
+  if (pdfData) pdfData.innerText = new Date().toLocaleString('pt-BR');
 
   const element = document.getElementById('pdf-template');
+  
+  if (!element) {
+    alert('Template de PDF não encontrado na página.');
+    return;
+  }
+
   const opt = {
-    margin:       10,
-    filename:     `Triagem_${nomePaciente.replace(/\s+/g, '_')}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    margin: 10,
+    filename: `Triagem_${nomePaciente.replace(/\s+/g, '_')}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   html2pdf().set(opt).from(element).save();
