@@ -1,11 +1,8 @@
 // ==========================================================================
-// CONFIGURAÇÃO DINÂMICA DA URL DA API
+// CONFIGURAÇÃO DA API EM PRODUÇÃO
 // ==========================================================================
-const isProduction = window.location.hostname.includes('vercel.app');
-
-const API_URL = isProduction 
-  ? 'https://enftech-api.onrender.com/api'
-  : 'http://localhost:3000/api';
+// Endereço fixo do back-end no Render
+const API_URL = 'https://enftech-api.onrender.com/api';
 
 /* ==========================================================================
    1. TRAVA DE SEGURANÇA UNIVERSAL (Executada imediatamente)
@@ -36,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     formCadastro.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const btnSubmit = formCadastro.querySelector('button[type="submit"]');
+      const textoOriginalBtn = btnSubmit ? btnSubmit.innerText : '';
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = 'Cadastrando...';
+      }
+
       const nome = document.getElementById('cad-nome').value;
       const email = document.getElementById('cad-email').value;
       const senha = document.getElementById('cad-senha').value;
@@ -59,7 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Erro de conexão no cadastro:', error);
-        alert('⚠️ Não foi possível conectar ao servidor. Verifique se a API está rodando.');
+        alert('⚠️ Não foi possível conectar ao servidor no Render. Aguarde cerca de 30 segundos (o servidor pode estar acordando) e tente novamente.');
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = textoOriginalBtn;
+        }
       }
     });
   }
@@ -68,6 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (formLogin) {
     formLogin.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const btnSubmit = formLogin.querySelector('button[type="submit"]');
+      const textoOriginalBtn = btnSubmit ? btnSubmit.innerText : '';
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = 'Entrando...';
+      }
 
       const email = document.getElementById('login-email').value;
       const senha = document.getElementById('login-senha').value;
@@ -89,7 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error('Erro de conexão no login:', error);
-        alert('⚠️ Não foi possível conectar ao servidor.');
+        alert('⚠️ Não foi possível conectar ao servidor no Render. Aguarde cerca de 30 segundos para o servidor responder e tente novamente.');
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = textoOriginalBtn;
+        }
       }
     });
   }
@@ -102,10 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- CARREGAR DADOS DO PERFIL E NAVEGAÇÃO CASO ESTEJA NA HOME ---
+  // --- CARREGAR DADOS DO PERFIL CASO ESTEJA NA HOME ---
   if (window.location.pathname.includes('home.html')) {
     carregarPerfil();
-    inicializarNavegacaoAbas();
   }
 });
 
@@ -150,166 +170,4 @@ async function carregarPerfil() {
     localStorage.removeItem('token');
     window.location.replace('index.html');
   }
-}
-
-/* ==========================================================================
-   4. SISTEMA DE NAVEGAÇÃO DAS ABAS NA HOME
-   ========================================================================== */
-function inicializarNavegacaoAbas() {
-  const navLinks = document.querySelectorAll('.nav-link');
-  const tabSections = document.querySelectorAll('.tab-section');
-
-  navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const target = link.getAttribute('data-target');
-
-      navLinks.forEach(l => l.classList.remove('active'));
-      tabSections.forEach(s => s.classList.remove('active'));
-
-      link.classList.add('active');
-      const sectionAlvo = document.getElementById(target);
-      if (sectionAlvo) sectionAlvo.classList.add('active');
-    });
-  });
-
-  const scaleLinks = document.querySelectorAll('.scale-link');
-  const scaleViews = document.querySelectorAll('.scale-view');
-
-  scaleLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const viewId = link.getAttribute('data-view');
-
-      scaleLinks.forEach(l => l.classList.remove('active'));
-      scaleViews.forEach(v => v.classList.remove('active'));
-
-      link.classList.add('active');
-      const viewAlvo = document.getElementById(viewId);
-      if (viewAlvo) viewAlvo.classList.add('active');
-    });
-  });
-}
-
-/* ==========================================================================
-   5. CÁLCULOS E PROTOCOLOS DAS ESCALAS CLÍNICAS
-   ========================================================================== */
-
-// --- CÁLCULO GLASGOW-P ---
-function calcGlasgow() {
-  const o = parseInt(document.getElementById('g-o')?.value) || 0;
-  const v = parseInt(document.getElementById('g-v')?.value) || 0;
-  const m = parseInt(document.getElementById('g-m')?.value) || 0;
-  const p = parseInt(document.getElementById('g-p')?.value) || 0;
-
-  const total = o + v + m + p;
-  const resBox = document.getElementById('res-glasgow');
-  const outTotal = document.getElementById('g-out-total');
-  const outCat = document.getElementById('g-out-cat');
-
-  let classificacao = "";
-  if (total <= 8) classificacao = "Trauma Cranioencefálico Grave (TCE Grave)";
-  else if (total <= 12) classificacao = "Trauma Cranioencefálico Moderado (TCE Moderado)";
-  else classificacao = "Trauma Cranioencefálico Leve (TCE Leve)";
-
-  if (outTotal) outTotal.innerText = `Pontuação Final: ${total}`;
-  if (outCat) outCat.innerText = classificacao;
-  if (resBox) resBox.style.display = 'block';
-}
-
-// --- CÁLCULO BRADEN ---
-function calcBraden() {
-  const b1 = parseInt(document.getElementById('b1')?.value) || 0;
-  const b2 = parseInt(document.getElementById('b2')?.value) || 0;
-  const b3 = parseInt(document.getElementById('b3')?.value) || 0;
-  const b4 = parseInt(document.getElementById('b4')?.value) || 0;
-  const b5 = parseInt(document.getElementById('b5')?.value) || 0;
-  const b6 = parseInt(document.getElementById('b6')?.value) || 0;
-
-  const total = b1 + b2 + b3 + b4 + b5 + b6;
-  const resBox = document.getElementById('res-braden');
-  const outTotal = document.getElementById('b-out-total');
-  const outCat = document.getElementById('b-out-cat');
-
-  let risco = "";
-  if (total <= 9) risco = "Risco Muito Elevado";
-  else if (total <= 12) risco = "Risco Elevado";
-  else if (total <= 14) risco = "Risco Moderado";
-  else risco = "Baixo Risco / Sem Risco";
-
-  if (outTotal) outTotal.innerText = `Score Braden: ${total}`;
-  if (outCat) outCat.innerText = risco;
-  if (resBox) resBox.style.display = 'block';
-}
-
-// --- CÁLCULO IMC ---
-function calcIMC() {
-  const peso = parseFloat(document.getElementById('imc-p')?.value);
-  const altura = parseFloat(document.getElementById('imc-a')?.value);
-  const resBox = document.getElementById('res-imc');
-
-  if (!peso || !altura) {
-    alert("Informe o peso e a altura corretamente.");
-    return;
-  }
-
-  const imc = (peso / (altura * altura)).toFixed(2);
-  let status = "";
-
-  if (imc < 18.5) status = "Abaixo do peso";
-  else if (imc < 24.9) status = "Peso normal";
-  else if (imc < 29.9) status = "Sobrepeso";
-  else status = "Obesidade";
-
-  if (resBox) {
-    resBox.innerHTML = `<h3>IMC: ${imc}</h3><p><strong>Classificação:</strong> ${status}</p>`;
-    resBox.style.display = 'block';
-  }
-}
-
-// --- CÁLCULO GOTAS ---
-function calcGotas() {
-  const vol = parseFloat(document.getElementById('got-v')?.value);
-  const tempo = parseFloat(document.getElementById('got-t')?.value);
-  const resBox = document.getElementById('res-gotas');
-
-  if (!vol || !tempo) {
-    alert("Informe o volume e o tempo corretamente.");
-    return;
-  }
-
-  const gotasMin = Math.round(vol / (tempo * 3));
-  const microgotasMin = Math.round(vol / tempo);
-
-  if (resBox) {
-    resBox.innerHTML = `<h3>Gotas: ${gotasMin} gtt/min</h3><p><strong>Microgotas:</strong> ${microgotasMin} mcgtt/min</p>`;
-    resBox.style.display = 'block';
-  }
-}
-
-// --- GERAÇÃO DE RELATÓRIO PDF ---
-function gerarRelatorioPDF() {
-  const elementoPaciente = document.getElementById('paciente-nome');
-  const nomePaciente = elementoPaciente && elementoPaciente.value ? elementoPaciente.value : "Não identificado";
-  
-  const pdfNome = document.getElementById('pdf-p-nome');
-  const pdfData = document.getElementById('pdf-p-data');
-
-  if (pdfNome) pdfNome.innerText = nomePaciente;
-  if (pdfData) pdfData.innerText = new Date().toLocaleString('pt-BR');
-
-  const element = document.getElementById('pdf-template');
-  
-  if (!element) {
-    alert('Template de PDF não encontrado na página.');
-    return;
-  }
-
-  const opt = {
-    margin: 10,
-    filename: `Triagem_${nomePaciente.replace(/\s+/g, '_')}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(element).save();
 }
